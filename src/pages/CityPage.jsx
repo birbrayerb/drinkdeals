@@ -8,10 +8,10 @@ import DealCard from '../components/DealCard'
 
 const DAYS = [0, 1, 2, 3, 4, 5, 6];
 const SORT_OPTIONS = [
+  { value: 'active', label: 'Active First' },
   { value: 'proximity', label: 'Nearest' },
-  { value: 'name', label: 'Name (A-Z)' },
-  { value: 'neighborhood', label: 'Neighborhood' },
-  { value: 'active', label: 'Active Now First' },
+  { value: 'name', label: 'Name A–Z' },
+  { value: 'neighborhood', label: 'Area' },
 ];
 
 export default function CityPage() {
@@ -22,44 +22,38 @@ export default function CityPage() {
   const [neighborhoodFilter, setNeighborhoodFilter] = useState('all');
   const [sortBy, setSortBy] = useState('active');
   const [showActiveOnly, setShowActiveOnly] = useState(false);
+  const [showMap, setShowMap] = useState(true);
 
-  // Get user location
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         pos => setUserLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        () => setUserLoc(city ? { lat: city.lat, lng: city.lng } : null)
+        () => city && setUserLoc({ lat: city.lat, lng: city.lng })
       );
     }
   }, [city]);
 
-  if (!city) return <div className="max-w-7xl mx-auto px-4 py-12"><h1>City not found</h1></div>;
+  if (!city) return <div className="max-w-6xl mx-auto px-4 py-12"><h1>City not found</h1></div>;
 
   const cityBars = allBars.filter(b => b.city === citySlug);
 
-  // Filter and sort
   const filtered = useMemo(() => {
     let result = [];
     for (const bar of cityBars) {
-      // Get deals for selected day
       const dayDeals = bar.deals.filter(d => isDealOnDay(d, dayFilter));
-      if (dayDeals.length === 0 && dayFilter !== -1) continue;
-      const dealsToShow = dayFilter === -1 ? bar.deals : dayDeals;
-
-      if (showActiveOnly && !dealsToShow.some(d => isDealActiveNow(d))) continue;
+      if (dayDeals.length === 0) continue;
+      if (showActiveOnly && !dayDeals.some(d => isDealActiveNow(d))) continue;
       if (neighborhoodFilter !== 'all' && bar.neighborhood !== neighborhoodFilter) continue;
-
       const dist = userLoc ? getDistance(userLoc.lat, userLoc.lng, bar.lat, bar.lng) : null;
-      for (const deal of dealsToShow) {
+      for (const deal of dayDeals) {
         result.push({ bar, deal, distance: dist });
       }
     }
-
     result.sort((a, b) => {
       if (sortBy === 'active') {
-        const aActive = isDealActiveNow(a.deal) ? 0 : 1;
-        const bActive = isDealActiveNow(b.deal) ? 0 : 1;
-        if (aActive !== bActive) return aActive - bActive;
+        const aa = isDealActiveNow(a.deal) ? 0 : 1;
+        const bb = isDealActiveNow(b.deal) ? 0 : 1;
+        if (aa !== bb) return aa - bb;
         return (a.distance ?? 999) - (b.distance ?? 999);
       }
       if (sortBy === 'proximity') return (a.distance ?? 999) - (b.distance ?? 999);
@@ -67,7 +61,6 @@ export default function CityPage() {
       if (sortBy === 'neighborhood') return a.bar.neighborhood.localeCompare(b.bar.neighborhood);
       return 0;
     });
-
     return result;
   }, [cityBars, dayFilter, neighborhoodFilter, sortBy, showActiveOnly, userLoc]);
 
@@ -79,74 +72,79 @@ export default function CityPage() {
     "@context": "https://schema.org",
     "@type": "ItemList",
     "name": `Happy Hour Deals in ${city.name}, ${city.stateName}`,
-    "description": `Find ${cityBars.length}+ bars with drink deals and happy hour specials in ${city.name}`,
     "numberOfItems": cityBars.length,
     "itemListElement": cityBars.map((bar, i) => ({
-      "@type": "ListItem",
-      "position": i + 1,
-      "item": {
-        "@type": "BarOrPub",
-        "name": bar.name,
-        "address": bar.address,
-        "geo": { "@type": "GeoCoordinates", "latitude": bar.lat, "longitude": bar.lng },
-        "url": `https://drinkdeals.com/${stateSlug}/${citySlug}/${bar.slug}`,
-      }
+      "@type": "ListItem", "position": i + 1,
+      "item": { "@type": "BarOrPub", "name": bar.name, "address": bar.address,
+        "geo": { "@type": "GeoCoordinates", "latitude": bar.lat, "longitude": bar.lng } }
     }))
   };
 
   return (
     <>
       <Helmet>
-        <title>Drink Deals in {city.name} — Happy Hour Specials & Bar Deals | DrinkDeals.com</title>
-        <meta name="description" content={`Find ${cityBars.length}+ bars with happy hour deals in ${city.name}, ${city.stateName}. Filter by day, time, and neighborhood. See what's happening right now on the map.`} />
+        <title>Drink Deals in {city.name} — Happy Hour Specials | DrinkDeals</title>
+        <meta name="description" content={`Find ${cityBars.length}+ bars with happy hour deals in ${city.name}. Filter by day, time, and neighborhood.`} />
         <link rel="canonical" href={`https://drinkdeals.com/${stateSlug}/${citySlug}`} />
-        <meta property="og:title" content={`Drink Deals in ${city.name} | DrinkDeals.com`} />
-        <meta property="og:description" content={`${cityBars.length}+ bars with happy hour deals in ${city.name}. Find cheap drinks near you.`} />
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
       </Helmet>
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-6xl mx-auto px-4 py-6">
         {/* Breadcrumb */}
-        <nav className="text-sm text-[var(--text2)] mb-4">
-          <Link to="/">Home</Link> / <Link to={`/${stateSlug}`}>{city.stateName}</Link> / <span className="text-white">{city.name}</span>
+        <nav className="text-xs text-[var(--text3)] mb-5 flex items-center gap-1.5">
+          <Link to="/" className="text-[var(--text2)] hover:text-white">Home</Link>
+          <span>/</span>
+          <Link to={`/${stateSlug}`} className="text-[var(--text2)] hover:text-white">{city.stateName}</Link>
+          <span>/</span>
+          <span className="text-[var(--text)]">{city.name}</span>
         </nav>
 
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-3xl font-bold">Drink Deals in {city.name}</h1>
-            <p className="text-[var(--text2)] mt-1">
-              {cityBars.length} bars · {filtered.length} deals
-              {activeCount > 0 && <span className="text-[var(--green)]"> · {activeCount} active now</span>}
-            </p>
-          </div>
+        {/* Hero */}
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight" style={{ fontFamily: 'Space Grotesk' }}>
+            Drink deals in <span className="grad-text">{city.name}</span>
+          </h1>
+          <p className="text-[var(--text2)] mt-2 flex items-center gap-3 text-sm">
+            <span>{cityBars.length} bars</span>
+            <span className="text-[var(--text3)]">·</span>
+            <span>{filtered.length} deals today</span>
+            {activeCount > 0 && (
+              <>
+                <span className="text-[var(--text3)]">·</span>
+                <span className="text-[var(--green)] font-medium flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-[var(--green)] rounded-full live-badge" />
+                  {activeCount} live now
+                </span>
+              </>
+            )}
+          </p>
         </div>
 
-        {/* Map */}
+        {/* Map toggle + Map */}
         <div className="mb-6">
-          <MapView
-            bars={cityBars}
-            center={[city.lat, city.lng]}
-            zoom={12}
-            stateSlug={stateSlug}
-            citySlug={citySlug}
-          />
+          <button onClick={() => setShowMap(v => !v)} className="text-xs text-[var(--text2)] hover:text-white mb-2 flex items-center gap-1.5">
+            <span>{showMap ? '🗺️ Hide map' : '🗺️ Show map'}</span>
+          </button>
+          {showMap && (
+            <div className="rounded-2xl overflow-hidden border border-[var(--border)]">
+              <MapView bars={cityBars} center={[city.lat, city.lng]} zoom={12} stateSlug={stateSlug} citySlug={citySlug} />
+            </div>
+          )}
         </div>
 
         {/* Filters */}
-        <div className="bg-[var(--bg2)] border border-[var(--border)] rounded-xl p-4 mb-6">
-          <div className="flex flex-wrap gap-3 items-center">
-            {/* Day filter */}
+        <div className="glass rounded-2xl p-4 mb-6">
+          <div className="flex flex-wrap gap-2 items-center">
+            {/* Days */}
             <div className="flex gap-1">
               {DAYS.map(d => (
                 <button
                   key={d}
                   onClick={() => setDayFilter(d)}
-                  className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition ${
-                    dayFilter === d
-                      ? 'bg-[var(--accent)] text-black'
-                      : d === today
-                        ? 'bg-[var(--bg3)] text-[var(--accent)] border border-[var(--accent)]/30'
-                        : 'bg-[var(--bg3)] text-[var(--text2)] hover:text-white'
+                  className={`pill text-xs ${
+                    dayFilter === d ? 'pill-active'
+                    : d === today ? 'pill-inactive !border-[var(--amber)]/30 !text-[var(--amber)]'
+                    : 'pill-inactive'
                   }`}
                 >
                   {dayShort(d)}
@@ -154,15 +152,15 @@ export default function CityPage() {
               ))}
             </div>
 
-            <div className="h-6 w-px bg-[var(--border)]" />
+            <div className="w-px h-5 bg-[var(--border)] mx-1" />
 
             {/* Neighborhood */}
             <select
               value={neighborhoodFilter}
               onChange={e => setNeighborhoodFilter(e.target.value)}
-              className="bg-[var(--bg3)] border border-[var(--border)] text-sm rounded-lg px-3 py-1.5 text-[var(--text)]"
+              className="glass rounded-xl text-xs px-3 py-1.5 text-[var(--text)] border-none outline-none cursor-pointer"
             >
-              <option value="all">All Neighborhoods</option>
+              <option value="all">All Areas</option>
               {neighborhoods.map(n => <option key={n} value={n}>{n}</option>)}
             </select>
 
@@ -170,65 +168,53 @@ export default function CityPage() {
             <select
               value={sortBy}
               onChange={e => setSortBy(e.target.value)}
-              className="bg-[var(--bg3)] border border-[var(--border)] text-sm rounded-lg px-3 py-1.5 text-[var(--text)]"
+              className="glass rounded-xl text-xs px-3 py-1.5 text-[var(--text)] border-none outline-none cursor-pointer"
             >
               {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
 
-            {/* Active only toggle */}
+            {/* Active toggle */}
             <button
               onClick={() => setShowActiveOnly(v => !v)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-                showActiveOnly ? 'bg-[var(--green)] text-black' : 'bg-[var(--bg3)] text-[var(--text2)]'
-              }`}
+              className={`pill text-xs ${showActiveOnly ? 'pill-green active' : 'pill-green'}`}
             >
-              🟢 Active Now Only
+              🟢 Live only
             </button>
           </div>
         </div>
 
-        {/* Deal list */}
+        {/* Deal grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filtered.map((f, i) => (
-            <DealCard
-              key={`${f.bar.id}-${i}`}
-              bar={f.bar}
-              deal={f.deal}
-              distance={f.distance}
-              citySlug={citySlug}
-              stateSlug={stateSlug}
-            />
+            <DealCard key={`${f.bar.id}-${i}`} bar={f.bar} deal={f.deal} distance={f.distance} citySlug={citySlug} stateSlug={stateSlug} />
           ))}
         </div>
 
         {filtered.length === 0 && (
-          <div className="text-center py-12 text-[var(--text2)]">
-            <p className="text-xl mb-2">No deals match your filters</p>
-            <p>Try a different day or clear the neighborhood filter</p>
+          <div className="text-center py-16">
+            <div className="text-4xl mb-3">🍷</div>
+            <p className="text-lg text-[var(--text2)]">No deals match your filters</p>
+            <p className="text-sm text-[var(--text3)] mt-1">Try a different day or clear the area filter</p>
           </div>
         )}
 
-        {/* SEO content */}
-        <section className="mt-16 prose prose-invert max-w-3xl">
-          <h2 className="text-xl font-bold text-white">Happy Hour Deals in {city.name}, {city.stateName}</h2>
-          <p className="text-[var(--text2)] leading-relaxed">
-            Looking for the best drink deals in {city.name}? DrinkDeals.com has you covered with {cityBars.length}+ bars
-            offering happy hour specials across neighborhoods like {neighborhoods.slice(0, 5).join(', ')}, and more.
-            From $1 oysters and $5 margaritas to 2-for-1 cocktails and bottomless brunch deals, find the cheapest drinks
-            near you right now.
+        {/* SEO */}
+        <section className="mt-16 max-w-3xl">
+          <h2 className="text-lg font-bold text-white mb-3" style={{ fontFamily: 'Space Grotesk' }}>Happy Hour in {city.name}</h2>
+          <p className="text-sm text-[var(--text2)] leading-relaxed mb-3">
+            Looking for the best drink deals in {city.name}? We've curated {cityBars.length}+ bars with happy hour specials
+            across {neighborhoods.slice(0, 5).join(', ')}, and more. From $1 oysters to 2-for-1 cocktails, find the best
+            prices on drinks near you.
           </p>
-          <h3 className="text-lg font-bold text-white">Popular Neighborhoods for Drink Deals</h3>
-          <ul className="text-[var(--text2)]">
+          <h3 className="text-sm font-bold text-white mb-2" style={{ fontFamily: 'Space Grotesk' }}>Neighborhoods</h3>
+          <div className="flex flex-wrap gap-2">
             {neighborhoods.map(n => (
-              <li key={n}><strong>{n}</strong> — {cityBars.filter(b => b.neighborhood === n).length} bars with deals</li>
+              <button key={n} onClick={() => setNeighborhoodFilter(n)}
+                className="pill pill-inactive text-xs">
+                {n} ({cityBars.filter(b => b.neighborhood === n).length})
+              </button>
             ))}
-          </ul>
-          <h3 className="text-lg font-bold text-white">How to Use DrinkDeals</h3>
-          <p className="text-[var(--text2)] leading-relaxed">
-            Select a day of the week to see which bars have specials running. Filter by neighborhood to find deals close to you.
-            Deals marked "Active Now" are happening at this very moment — grab your friends and go! We update our deal listings
-            regularly to ensure accuracy.
-          </p>
+          </div>
         </section>
       </div>
     </>
