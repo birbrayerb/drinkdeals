@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="DrinkDeals — Find the best happy hours, cocktail specials, and late-night deals near you." />
+  <title>DrinkDeals — Happy hour, curated.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="nav">
+    <a href="#" class="brand" aria-label="DrinkDeals home">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <defs>
+          <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#ffb86b" />
+            <stop offset="1" stop-color="#ff5c8a" />
+          </linearGradient>
+        </defs>
+        <path d="M6 4h20l-2 10a8 8 0 0 1-8 6 8 8 0 0 1-8-6L6 4Z" fill="url(#g1)" />
+        <rect x="15" y="20" width="2" height="7" fill="url(#g1)" />
+        <rect x="10" y="27" width="12" height="2" rx="1" fill="url(#g1)" />
+      </svg>
+      <span>DrinkDeals</span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#deals">Deals</a>
+      <a href="#cities">Cities</a>
+      <a href="#happy-hour">Happy Hour</a>
+      <a href="#about">About</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="btn btn-ghost" id="themeToggle" aria-label="Toggle theme">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <a href="#deals" class="btn btn-primary">Find a deal</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-bg" aria-hidden="true">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+      </div>
+
+      <div class="hero-inner">
+        <span class="eyebrow">
+          <span class="dot"></span> Live now · 1,284 deals tonight
+        </span>
+        <h1 class="hero-title">
+          The night is <em>young</em>.<br />
+          Your wallet stays <span class="grad">full</span>.
+        </h1>
+        <p class="hero-sub">
+          Hand-curated happy hours, half-price cocktails, and late-night specials from the bars you'll actually love.
+        </p>
+
+        <form class="search" id="searchForm" role="search">
+          <label class="field">
+            <span class="field-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18"><path d="M21 21l-4.3-4.3M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+            <input id="q" type="search" placeholder="Margaritas, IPA, $5 wine…" autocomplete="off" />
+          </label>
+          <label class="field field-sm">
+            <span class="field-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 22s7-7.5 7-13a7 7 0 1 0-14 0c0 5.5 7 13 7 13Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="9" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+            </span>
+            <select id="city">
+              <option value="">All cities</option>
+              <option>New York</option>
+              <option>Los Angeles</option>
+              <option>Chicago</option>
+              <option>Austin</option>
+              <option>Seattle</option>
+            </select>
+          </label>
+          <button class="btn btn-primary btn-lg" type="submit">Search</button>
+        </form>
+
+        <div class="chips" id="chips" role="tablist" aria-label="Filter deals by type">
+          <button class="chip is-active" data-filter="all" role="tab" aria-selected="true">All</button>
+          <button class="chip" data-filter="happy" role="tab" aria-selected="false">Happy hour</button>
+          <button class="chip" data-filter="cocktail" role="tab" aria-selected="false">Cocktails</button>
+          <button class="chip" data-filter="beer" role="tab" aria-selected="false">Beer</button>
+          <button class="chip" data-filter="wine" role="tab" aria-selected="false">Wine</button>
+          <button class="chip" data-filter="late" role="tab" aria-selected="false">Late night</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats" aria-label="Platform highlights">
+      <div class="stat"><span class="stat-num">1,284</span><span class="stat-label">Deals tonight</span></div>
+      <div class="stat"><span class="stat-num">96</span><span class="stat-label">Cities</span></div>
+      <div class="stat"><span class="stat-num">4.9★</span><span class="stat-label">Avg. rating</span></div>
+      <div class="stat"><span class="stat-num">$8.40</span><span class="stat-label">Avg. cocktail</span></div>
+    </section>
+
+    <section class="section" id="deals">
+      <div class="section-head">
+        <div>
+          <h2>Tonight's top pours</h2>
+          <p class="muted">Handpicked by our local scouts, updated every hour.</p>
+        </div>
+        <div class="seg" role="tablist" aria-label="Sort deals">
+          <button class="seg-btn is-active" data-sort="hot">Hot</button>
+          <button class="seg-btn" data-sort="price">Cheapest</button>
+          <button class="seg-btn" data-sort="close">Nearby</button>
+        </div>
+      </div>
+
+      <div class="grid" id="dealGrid" aria-live="polite"></div>
+      <div class="empty" id="emptyState" hidden>
+        <h3>No deals match that.</h3>
+        <p class="muted">Try clearing filters or searching a different city.</p>
+      </div>
+    </section>
+
+    <section class="section alt" id="happy-hour">
+      <div class="section-head centered">
+        <h2>The happy hour map</h2>
+        <p class="muted">Golden hour starts at 4. Your first round is on the house of discounts.</p>
+      </div>
+      <div class="timeline">
+        <div class="tl-row">
+          <span class="tl-time">4:00</span>
+          <div class="tl-bar"><span class="tl-fill" style="--w: 12%"></span></div>
+          <span class="tl-count">42</span>
+        </div>
+        <div class="tl-row">
+          <span class="tl-time">5:00</span>
+          <div class="tl-bar"><span class="tl-fill" style="--w: 38%"></span></div>
+          <span class="tl-count">138</span>
+        </div>
+        <div class="tl-row">
+          <span class="tl-time">6:00</span>
+          <div class="tl-bar"><span class="tl-fill" style="--w: 76%"></span></div>
+          <span class="tl-count">284</span>
+        </div>
+        <div class="tl-row">
+          <span class="tl-time">7:00</span>
+          <div class="tl-bar"><span class="tl-fill" style="--w: 94%"></span></div>
+          <span class="tl-count">351</span>
+        </div>
+        <div class="tl-row">
+          <span class="tl-time">8:00</span>
+          <div class="tl-bar"><span class="tl-fill" style="--w: 62%"></span></div>
+          <span class="tl-count">229</span>
+        </div>
+        <div class="tl-row">
+          <span class="tl-time">9:00</span>
+          <div class="tl-bar"><span class="tl-fill" style="--w: 44%"></span></div>
+          <span class="tl-count">161</span>
+        </div>
+        <div class="tl-row">
+          <span class="tl-time">10:00</span>
+          <div class="tl-bar"><span class="tl-fill" style="--w: 22%"></span></div>
+          <span class="tl-count">79</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="cities">
+      <div class="section-head">
+        <div>
+          <h2>Cities we love</h2>
+          <p class="muted">From rooftop spritz to dive-bar lagers.</p>
+        </div>
+      </div>
+      <div class="cities">
+        <a class="city city-ny"><span class="city-name">New York</span><span class="city-count">312 deals</span></a>
+        <a class="city city-la"><span class="city-name">Los Angeles</span><span class="city-count">268 deals</span></a>
+        <a class="city city-ch"><span class="city-name">Chicago</span><span class="city-count">184 deals</span></a>
+        <a class="city city-au"><span class="city-name">Austin</span><span class="city-count">147 deals</span></a>
+        <a class="city city-se"><span class="city-name">Seattle</span><span class="city-count">129 deals</span></a>
+        <a class="city city-mi"><span class="city-name">Miami</span><span class="city-count">118 deals</span></a>
+      </div>
+    </section>
+
+    <section class="section cta-band" id="about">
+      <div class="cta">
+        <h2>Get one great deal every afternoon.</h2>
+        <p class="muted">No spam. Just one text, around 4pm, with a handpicked pour near you.</p>
+        <form class="cta-form" id="subscribeForm">
+          <input type="email" required placeholder="you@afterwork.com" aria-label="Email" />
+          <button class="btn btn-primary" type="submit">Pour me one</button>
+        </form>
+        <p class="tiny" id="subscribeNote"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="foot-inner">
+      <div class="foot-brand">
+        <span class="brand"><svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><use href="#"/><path d="M6 4h20l-2 10a8 8 0 0 1-8 6 8 8 0 0 1-8-6L6 4Z" fill="url(#g1)"/><rect x="15" y="20" width="2" height="7" fill="url(#g1)"/><rect x="10" y="27" width="12" height="2" rx="1" fill="url(#g1)"/></svg>DrinkDeals</span>
+        <p class="muted">Drink well. Spend less. Please drink responsibly — 21+.</p>
+      </div>
+      <div class="foot-cols">
+        <div>
+          <h4>Product</h4>
+          <a href="#deals">Deals</a>
+          <a href="#cities">Cities</a>
+          <a href="#happy-hour">Happy hour</a>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <a href="#">About</a>
+          <a href="#">Careers</a>
+          <a href="#">Press</a>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <a href="#">Terms</a>
+          <a href="#">Privacy</a>
+          <a href="#">Cookies</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 DrinkDeals</span>
+      <span>Made with a twist of lime.</span>
+    </div>
+  </footer>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
